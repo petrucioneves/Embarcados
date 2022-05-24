@@ -22,18 +22,25 @@
  *                 INTERNAL MACRO DEFINITIONS
 *****************************************************************************/
 
-#define TIME                                                    100000
+#define TIME                                                    1000000
 #define TOGGLE                                                  (0x01u)
+#define PINPOS(x)(1<<x)
 
-#define CM_PER_GPIO1											0xAC
+#define CM_PER_GPIO1_CLKCTRL									0xAC
+#define CM_PER_GPIO2_CLKCTRL									0xB0
 #define CM_PER_GPIO1_CLKCTRL_MODULEMODE_ENABLE   				(0x2u)
 #define CM_PER_GPIO1_CLKCTRL_OPTFCLKEN_GPIO_1_GDBCLK   			(0x00040000u)
+#define CM_PER_GPIO2_CLKCTRL_MODULEMODE_ENABLE   				(0x2u)
+#define CM_PER_GPIO2_CLKCTRL_OPTFCLKEN_GPIO_2_GDBCLK   			(0x00040000u)
+
+
 
 #define CM_conf_gpmc_ben1      	 								0x0878
 #define CM_conf_gpmc_a5         								0x0854
 #define CM_conf_gpmc_a6         								0x0858
 #define CM_conf_gpmc_a7										    0x085C
 #define CM_conf_gpmc_a8         								0x0860
+#define CM_conf_gpmc_clk										0x088C
 
 #define GPIO_OE                 								0x134
 #define GPIO_CLEARDATAOUT       								0x190
@@ -96,28 +103,29 @@ void ledInit( ){
 	/*-----------------------------------------------------------------------------
 	 *  configure clock GPIO in clock module
 	 *-----------------------------------------------------------------------------*/
-	HWREG(SOC_CM_PER_REGS+CM_PER_GPIO1) |= CM_PER_GPIO1_CLKCTRL_OPTFCLKEN_GPIO_1_GDBCLK | CM_PER_GPIO1_CLKCTRL_MODULEMODE_ENABLE;
+	HWREG(SOC_CM_PER_REGS+CM_PER_GPIO1_CLKCTRL) |= CM_PER_GPIO1_CLKCTRL_OPTFCLKEN_GPIO_1_GDBCLK | CM_PER_GPIO1_CLKCTRL_MODULEMODE_ENABLE;
 	
 	/*-----------------------------------------------------------------------------
 	 * configure mux pin in control module
 	 *-----------------------------------------------------------------------------*/
-   	HWREG(SOC_CONTROL_REGS+CM_conf_gpmc_a5) |= 7;
+	
+	HWREG(SOC_CONTROL_REGS+CM_conf_gpmc_ben1) |= 7;
+	HWREG(SOC_CONTROL_REGS+CM_conf_gpmc_a5) |= 7;
    	HWREG(SOC_CONTROL_REGS+CM_conf_gpmc_a6) |= 7;
    	HWREG(SOC_CONTROL_REGS+CM_conf_gpmc_a7) |= 7;
-   	HWREG(SOC_CONTROL_REGS+CM_conf_gpmc_a8) |= 7;
- 
+   	HWREG(SOC_CONTROL_REGS+CM_conf_gpmc_a8) |= 7;   
+	 
 	/*-----------------------------------------------------------------------------
 	 *  set pin direction 
 	 *-----------------------------------------------------------------------------*/
 	val_temp = HWREG(SOC_GPIO_1_REGS+GPIO_OE);
-	val_temp &= ~(1<<21);
-	val_temp &= ~(1<<22);
-	val_temp &= ~(1<<23);
-	val_temp &= ~(1<<24);
-	
+	val_temp &= ~PINPOS(21);
+	val_temp &= ~PINPOS(22);
+	val_temp &= ~PINPOS(23);
+	val_temp &= ~PINPOS(24);
+	val_temp &= ~PINPOS(28);
 	HWREG(SOC_GPIO_1_REGS+GPIO_OE) = val_temp;
-		
-}/* -----  end of function ledInit  ----- */
+	}/* -----  end of function ledInit  ----- */
 
 
 
@@ -132,14 +140,28 @@ void ledToggle( ){
 		flagBlink ^= TOGGLE;
 
 		if(flagBlink){
-			HWREG(SOC_GPIO_1_REGS+GPIO_SETDATAOUT) = (1<<21);
-			HWREG(SOC_GPIO_1_REGS+GPIO_SETDATAOUT) = (1<<22);
-			HWREG(SOC_GPIO_1_REGS+GPIO_SETDATAOUT) = (1<<23);
-			HWREG(SOC_GPIO_1_REGS+GPIO_SETDATAOUT) = (1<<24);
+			HWREG(SOC_GPIO_1_REGS+GPIO_SETDATAOUT) = PINPOS(21);
+			delay();
+			HWREG(SOC_GPIO_1_REGS+GPIO_SETDATAOUT) = PINPOS(22);
+			delay();
+			HWREG(SOC_GPIO_1_REGS+GPIO_SETDATAOUT) = PINPOS(23);
+			delay();
+			HWREG(SOC_GPIO_1_REGS+GPIO_SETDATAOUT) = PINPOS(24);
+			delay();
+			HWREG(SOC_GPIO_1_REGS+GPIO_SETDATAOUT) = PINPOS(28);
+			delay();
+			
 		}else{
-			HWREG(SOC_GPIO_1_REGS+GPIO_CLEARDATAOUT) = (1<<21);
-			HWREG(SOC_GPIO_1_REGS+GPIO_CLEARDATAOUT) = (1<<22);
-			HWREG(SOC_GPIO_1_REGS+GPIO_CLEARDATAOUT) = (1<<23);
-			HWREG(SOC_GPIO_1_REGS+GPIO_CLEARDATAOUT) = (1<<24);
+			HWREG(SOC_GPIO_1_REGS+GPIO_CLEARDATAOUT) = PINPOS(21);
+			delay();
+			HWREG(SOC_GPIO_1_REGS+GPIO_CLEARDATAOUT) = PINPOS(22);
+			delay();
+			HWREG(SOC_GPIO_1_REGS+GPIO_CLEARDATAOUT) = PINPOS(23);
+			delay();
+			HWREG(SOC_GPIO_1_REGS+GPIO_CLEARDATAOUT) = PINPOS(24);
+			delay();
+			HWREG(SOC_GPIO_1_REGS+GPIO_CLEARDATAOUT) = PINPOS(28);
+			delay();
+			
 		}
 }/* -----  end of function ledToggle  ----- */
