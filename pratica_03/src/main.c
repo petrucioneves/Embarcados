@@ -113,7 +113,7 @@ void ledInit( ){
 	
 	HWREG(SOC_CONTROL_REGS+CM_conf_gpmc_ben1) |= 7;
 	HWREG(SOC_CONTROL_REGS+CM_conf_gpmc_clk) |= 7;   
- 
+	
 	/*-----------------------------------------------------------------------------
 	 *  set pin direction 
 	 *-----------------------------------------------------------------------------*/
@@ -136,9 +136,9 @@ void ledInit( ){
  */
 void ledPushButton( ){
 	if(HWREG(SOC_GPIO_1_REGS+GPIO_DATAIN) & PINPOS(28)){
-		HWREG(SOC_GPIO_2_REGS+GPIO_SETDATAOUT) = PINPOS(1);
+		HWREG(SOC_GPIO_2_REGS+GPIO_SETDATAOUT) = PINPOS(21);
 		delay();
 	}else{
-		HWREG(SOC_GPIO_2_REGS+GPIO_CLEARDATAOUT) = PINPOS(1);
+		HWREG(SOC_GPIO_2_REGS+GPIO_CLEARDATAOUT) = PINPOS(21);
 	}	
 }/* -----  end of function ledPushButton  ----- */
